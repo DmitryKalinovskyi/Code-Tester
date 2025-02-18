@@ -6,13 +6,15 @@ export interface CodeTesterApiConfig extends AjaxConfig {
     debug?: boolean;
 }
 
+const baseUrl = "https://localhost:32768/api"
+
 const createRequestObservable = <T>(config: CodeTesterApiConfig) => {
     const buildUrl = () => {
         if (config.isUrlFull) {
             return config.url;
         }
 
-        return `localhost:32778/${config.url}`;
+        return `${baseUrl}${config.url}`;
     };
 
     const ajaxConfig: AjaxConfig = {
