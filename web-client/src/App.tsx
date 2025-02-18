@@ -1,9 +1,8 @@
 import ConfigProvider from 'antd/es/config-provider';
 import './App.css'
-import Console from './components/console';
-import CodeEditor from './components/code-editor';
 import { Provider as ReduxProvider } from 'react-redux';
 import { store } from './state/store';
+import EditorPage from './pages/editor';
 
 function App() {
     return <ConfigProvider theme={{
@@ -13,8 +12,7 @@ function App() {
         }
     }}>
         <ReduxProvider store={store}>
-            <CodeEditor />
-            <Console content="Demo" />
+            <EditorPage/>
         </ReduxProvider>
     </ConfigProvider>;
 }
