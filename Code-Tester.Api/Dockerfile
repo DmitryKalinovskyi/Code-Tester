@@ -7,10 +7,13 @@ WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
 
-# Add python to the container
+# Add python3, g++, .net, java to the container for code running.
 USER root
 RUN apt-get update
 RUN apt-get install python3 -y
+RUN apt-get install g++ -y
+RUN apt-get install openjdk-17-jdk -y
+
 USER app
 
 # This stage is used to build the service project
