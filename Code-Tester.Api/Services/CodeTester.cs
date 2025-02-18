@@ -7,7 +7,7 @@ namespace Code_Tester.Api.Services
     {
         private readonly Dictionary<string, ICodeTestStrategy> _concreteCodeTesters = new()
         {
-            { "Python3", new PythonStrategy() },
+            { "Python", new PythonStrategy() },
             { "C++", new CPlusPlusStrategy() },
             { "Java", new JavaStrategy() },
         };
