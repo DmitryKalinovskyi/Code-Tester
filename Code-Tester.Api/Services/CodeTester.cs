@@ -6,13 +6,21 @@ namespace Code_Tester.Api.Services
 {
     public class CodeTester : ICodeTester
     {
-        public string[] GetAllowedTestLanguages()
+        public string[] GetSupportedLanguages()
         {
             return ["python3"];
         }
 
         public async Task<CodeTestResponse> TestAsync(CodeTestRequest request)
         {
+            if (!GetSupportedLanguages().Contains(request.Language))
+            {
+                return new CodeTestResponse() {
+                    Output = "",
+                    Error = $"{request.Language} language is not supported"
+                };
+            }
+
             // at first time leave this in the same container
             // consider that our user is very friendly and don't want to break our system :)
             // ensure security in the later stages
@@ -22,9 +30,12 @@ namespace Code_Tester.Api.Services
 
             var testId = Guid.NewGuid();
             var testPath = $"./running/{testId}";
-            var inputPath = Path.Combine(testPath, "input.txt");
-            var programPath = Path.Combine(testPath, "program.py");
-            var executor = "python3";
+            const string inputFileName = "input.txt";
+            const string programFileName = "program.py";
+            const string executor = "python3";
+
+            var inputPath = Path.Combine(testPath, inputFileName);
+            var programPath = Path.Combine(testPath, programFileName);
 
             Directory.CreateDirectory(testPath);
 
@@ -42,13 +53,14 @@ namespace Code_Tester.Api.Services
             {
                 StartInfo = new ProcessStartInfo
                 {
+                    WorkingDirectory = testPath,
                     FileName = executor,
-                    Arguments = programPath,
+                    Arguments = programFileName,
                     RedirectStandardInput = request.ForwardInput,
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
                     UseShellExecute = false,
-                    CreateNoWindow = true
+                    CreateNoWindow = true,
                 }
             };
 

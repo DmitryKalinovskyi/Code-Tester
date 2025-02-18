@@ -6,6 +6,6 @@ namespace Code_Tester.Api.Services
     {
         Task<CodeTestResponse> TestAsync(CodeTestRequest request);
 
-        string[] GetAllowedTestLanguages();
+        string[] GetSupportedLanguages();
     }
 }

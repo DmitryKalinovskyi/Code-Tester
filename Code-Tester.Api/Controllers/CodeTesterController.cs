@@ -18,9 +18,9 @@ namespace Code_Tester.Api.Controllers
 
         [HttpGet("languages")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public string[] GetAllowedTestLanguages()
+        public string[] GetSupportedLanguages()
         {
-            return codeTester.GetAllowedTestLanguages();
+            return codeTester.GetSupportedLanguages();
         }
     }
 }
