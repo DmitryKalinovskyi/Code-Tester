@@ -11,5 +11,7 @@ namespace Code_Tester.Api.DTOs
         public required string SourceCode { get; set; }
 
         public string? Input { get; set; }
+
+        public bool ForwardInput { get; set; }
     }
 }
