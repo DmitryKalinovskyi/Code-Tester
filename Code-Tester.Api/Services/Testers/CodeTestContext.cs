@@ -41,6 +41,8 @@ namespace Code_Tester.Api.Services.Testers
 
         public async Task<CodeTestResponse> Execute(string fileName, string arguments)
         {
+            var stopwatch = new Stopwatch();
+
             var process = new Process
             {
                 StartInfo = new ProcessStartInfo
@@ -56,16 +58,27 @@ namespace Code_Tester.Api.Services.Testers
                 }
             };
 
+            stopwatch.Start();
+
             process.Start();
 
             await process.StandardInput.WriteAsync(Input);
             process.StandardInput.Close();
+            long peakWorkingSet64 = process.PeakWorkingSet64;
 
             string output = await process.StandardOutput.ReadToEndAsync();
             string error = await process.StandardError.ReadToEndAsync();
-            await process.WaitForExitAsync();
 
-            return new CodeTestResponse() { Error = error, Output = output };
+            await process.WaitForExitAsync();
+            stopwatch.Stop();
+
+            return new CodeTestResponse()
+            {
+                Error = error,
+                Output = output,
+                ExecutionTimeMilliseconds = stopwatch.ElapsedMilliseconds,
+                MemoryUsedBytes = peakWorkingSet64
+            };
         }
 
         public async Task Run(string fileName)
