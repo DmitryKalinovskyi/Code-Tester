@@ -11,10 +11,17 @@ namespace Code_Tester.Api.Controllers
     {
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<CodeTestResponse> TestCode(CodeTestRequest request)
+        [ProducesResponseType(typeof(CodeTestResponse), StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<CodeTestResponse>> TestCode(CodeTestRequest request)
         {
-            return await codeTester.TestAsync(request);
+            var result = await codeTester.TestAsync(request);
+
+            if (!string.IsNullOrEmpty(result.Error))
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
         }
 
         [HttpGet("languages")]
