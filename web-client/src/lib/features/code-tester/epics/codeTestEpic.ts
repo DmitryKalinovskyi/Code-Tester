@@ -28,7 +28,15 @@ const codeTestEpic: Epic<Action, Action, CodeTesterState> = (action$) =>
                     ),
                     catchError((error) => {
                         if (error.status == "400") {
-                            return of(codeExecutionFailure(error.response.error));
+                            return of(
+                                codeExecutionFailure(error.response.error)
+                            );
+                        }
+
+                        if (error.response === null) {
+                            return of(
+                                codeTestFailure("Failed to connect the server.")
+                            );
                         }
 
                         return of(codeTestFailure(error.message));

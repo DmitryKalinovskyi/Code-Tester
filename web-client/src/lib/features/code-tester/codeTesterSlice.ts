@@ -5,6 +5,7 @@ import CodeTestResponse from "./types/CodeTestResponse";
 interface CodeTesterSliceState {
     isTesting: boolean;
     executionError?: string | null;
+    testError?: string | null;
     codeTestResponse?: CodeTestResponse | null;
 }
 
@@ -20,6 +21,7 @@ const codeTesterSlice = createSlice({
             state.isTesting = true;
             state.executionError = null;
             state.codeTestResponse = null;
+            state.testError = null;
         },
 
         codeTestSuccess: (state, action: PayloadAction<CodeTestResponse>) => {
@@ -27,8 +29,9 @@ const codeTesterSlice = createSlice({
             state.codeTestResponse = action.payload;
         },
 
-        codeTestFailure: (state, _action: PayloadAction<any>) => {
+        codeTestFailure: (state, action: PayloadAction<string>) => {
             state.isTesting = false;
+            state.testError = action.payload;
         },
 
         codeExecutionFailure: (state, action: PayloadAction<string>) => {

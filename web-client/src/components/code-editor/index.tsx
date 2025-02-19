@@ -8,10 +8,11 @@ export type CodeEditorThemes = typeof supportedThemes;
 export type CodeEditorLanguages = typeof supportedLanguages;
 
 export interface CodeEditorProps {
-    language: keyof typeof supportedLanguages
-    theme: keyof typeof supportedThemes
+    language: keyof typeof supportedLanguages;
+    theme: keyof typeof supportedThemes;
     initialDoc?: string;
-    ref?: Ref<CodeEditorHandle>
+    ref?: Ref<CodeEditorHandle>;
+    style?: React.CSSProperties;
 }
 
 export type CodeEditorHandle = {
@@ -57,7 +58,7 @@ function CodeEditor(props: CodeEditorProps) {
 
     }, [props.language, props.theme])
 
-    return <div style={{ height: "100%" }} ref={editorRef} />
+    return <div style={props.style} ref={editorRef} />
 }
 
 export default CodeEditor;
