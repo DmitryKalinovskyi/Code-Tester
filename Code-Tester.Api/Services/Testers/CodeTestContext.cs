@@ -64,7 +64,18 @@ namespace Code_Tester.Api.Services.Testers
 
             await process.StandardInput.WriteAsync(Input);
             process.StandardInput.Close();
-            long peakWorkingSet64 = process.PeakWorkingSet64;
+            long peakMemoryUsage = 0;
+
+            do
+            {
+                if (!process.HasExited)
+                {
+                    // Refresh the current process property values.
+                    process.Refresh();
+                    peakMemoryUsage = Math.Max(peakMemoryUsage, process.PeakWorkingSet64);
+                }
+            }
+            while (!process.WaitForExit(500));
 
             string output = await process.StandardOutput.ReadToEndAsync();
             string error = await process.StandardError.ReadToEndAsync();
@@ -77,7 +88,7 @@ namespace Code_Tester.Api.Services.Testers
                 Error = error,
                 Output = output,
                 ExecutionTimeMilliseconds = stopwatch.ElapsedMilliseconds,
-                MemoryUsedBytes = peakWorkingSet64
+                MemoryUsedBytes = peakMemoryUsage
             };
         }
 
