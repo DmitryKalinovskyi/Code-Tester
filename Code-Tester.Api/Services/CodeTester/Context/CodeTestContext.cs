@@ -1,8 +1,8 @@
-﻿using Code_Tester.Api.DTOs;
+﻿using Code_Tester.Api.Services.CodeTester.DTOs;
 using System.Diagnostics;
 using System.Text;
 
-namespace Code_Tester.Api.Services.Testers
+namespace Code_Tester.Api.Services.CodeTester.Context
 {
     public class CodeTestContext : IDisposable
     {
@@ -34,12 +34,12 @@ namespace Code_Tester.Api.Services.Testers
             await inputFileStream.FlushAsync();
         }
 
-        public async Task<CodeTestResponse> Execute(string fileName)
+        public async Task<CodeTestResult> Execute(string fileName)
         {
             return await Execute(fileName, "");
         }
 
-        public async Task<CodeTestResponse> Execute(string fileName, string arguments)
+        public async Task<CodeTestResult> Execute(string fileName, string arguments)
         {
             var stopwatch = new Stopwatch();
 
@@ -83,7 +83,7 @@ namespace Code_Tester.Api.Services.Testers
             await process.WaitForExitAsync();
             stopwatch.Stop();
 
-            return new CodeTestResponse()
+            return new CodeTestResult()
             {
                 Error = error,
                 Output = output,
