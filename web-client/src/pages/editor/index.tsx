@@ -4,11 +4,15 @@ import Console from "../../components/console";
 import { useEffect, useRef, useState } from "react";
 import supportedLanguages from "../../components/code-editor/supportedLanguages";
 import supportedThemes from "../../components/code-editor/supportedThemes";
-import Icon, { CaretRightOutlined, ClockCircleOutlined, DatabaseOutlined } from "@ant-design/icons";
+import { CaretRightOutlined, ClockCircleOutlined, DatabaseOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { CodeTesterState } from "../../lib/state/rootReducer";
-import { codeTest } from "../../lib/features/code-tester/codeTesterSlice";
+import { codeExecutionFailure, codeTest, codeTestFailure, codeTestSuccess } from "../../lib/features/code-tester/codeTesterSlice";
 import TextArea, { TextAreaRef } from "antd/es/input/TextArea";
+import { useSubscription } from "observable-hooks";
+import storeAction$ from "../../lib/state/storeAction$";
+import { ofType } from "redux-observable";
+import { PayloadAction } from "@reduxjs/toolkit";
 
 const { Header, Content } = Layout;
 
@@ -21,14 +25,19 @@ function EditorPage() {
     const isTesting = useSelector((state: CodeTesterState) => state.codeTester.isTesting);
     const response = useSelector((state: CodeTesterState) => state.codeTester.codeTestResponse);
     const executionError = useSelector((state: CodeTesterState) => state.codeTester.executionError);
-    const testError = useSelector((state: CodeTesterState) => state.codeTester.testError);
     const [messageApi, contextHolder] = message.useMessage();
     const { token: { colorBgContainer, colorError } } = theme.useToken();
 
-    useEffect(() => {
-        if (testError)
-            messageApi.error(testError)
-    }, [testError])
+    const handleCodeTestFailure = (action: PayloadAction<string>) => {
+        messageApi.error(action.payload)
+    }
+
+    const handleCodeTestSuccess = () => {
+        messageApi.success("Runned successfully.")
+    }
+
+    useSubscription(storeAction$.pipe(ofType(codeTestSuccess.type)), handleCodeTestSuccess)
+    useSubscription(storeAction$.pipe(ofType(codeTestFailure.type)), handleCodeTestFailure)
 
     const handleRun = () => {
         if (editorRef.current) {
@@ -81,7 +90,7 @@ function EditorPage() {
                 <Splitter.Panel collapsible>
                     <Flex gap={5} vertical style={{ height: "100%" }}>
                         <Flex gap={12}>
-                            <Statistic  prefix={<ClockCircleOutlined />} value={response?.executionTimeMilliseconds} suffix="ms" />
+                            <Statistic prefix={<ClockCircleOutlined />} value={response?.executionTimeMilliseconds} suffix="ms" />
                             <Statistic precision={2} prefix={<DatabaseOutlined />} value={(response?.memoryUsedBytes ?? 0) / 1000000} suffix="mb" />
                         </Flex>
                         <Console displayError={!!executionError}
