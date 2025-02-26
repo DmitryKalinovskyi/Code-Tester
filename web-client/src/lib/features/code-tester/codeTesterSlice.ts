@@ -24,6 +24,13 @@ const codeTesterSlice = createSlice({
             state.testError = null;
         },
 
+        cancelCodeTest: (state) => {
+            state.isTesting = false;
+            state.codeTestResponse = {
+                output: "Test is canceled.",
+            };
+        },
+
         codeTestSuccess: (state, action: PayloadAction<CodeTestResponse>) => {
             state.isTesting = false;
             state.codeTestResponse = action.payload;
@@ -47,4 +54,5 @@ export const {
     codeExecutionFailure,
     codeTestFailure,
     codeTestSuccess,
+    cancelCodeTest,
 } = codeTesterSlice.actions;

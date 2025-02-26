@@ -2,12 +2,13 @@ import { Action } from "redux";
 import { CodeTesterState } from "../../../state/rootReducer";
 import { Epic, ofType } from "redux-observable";
 import {
+    cancelCodeTest,
     codeExecutionFailure,
     codeTest,
     codeTestFailure,
     codeTestSuccess,
 } from "../codeTesterSlice";
-import { catchError, map, of, switchMap } from "rxjs";
+import { catchError, map, of, switchMap, takeUntil } from "rxjs";
 import codeTesterApi from "../../../api/codeTesterApi";
 import CodeTestRequest from "../types/CodeTestRequest";
 import { PayloadAction } from "@reduxjs/toolkit";
@@ -26,6 +27,7 @@ const codeTestEpic: Epic<Action, Action, CodeTesterState> = (action$) =>
                     map((ajaxResponse) =>
                         codeTestSuccess(ajaxResponse.response)
                     ),
+                    takeUntil(action$.pipe(ofType(cancelCodeTest.type))),
                     catchError((error) => {
                         if (error.status == "400") {
                             return of(

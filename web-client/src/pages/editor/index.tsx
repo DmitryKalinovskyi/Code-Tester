@@ -1,18 +1,19 @@
 import { Button, Flex, Layout, message, Select, Splitter, Statistic, theme } from "antd";
 import CodeEditor, { CodeEditorHandle, CodeEditorLanguages, CodeEditorThemes } from "../../components/code-editor";
 import Console from "../../components/console";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import supportedLanguages from "../../components/code-editor/supportedLanguages";
 import supportedThemes from "../../components/code-editor/supportedThemes";
-import { CaretRightOutlined, ClockCircleOutlined, DatabaseOutlined } from "@ant-design/icons";
+import { CaretRightOutlined, ClockCircleOutlined, CloseCircleOutlined, DatabaseOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { CodeTesterState } from "../../lib/state/rootReducer";
-import { codeExecutionFailure, codeTest, codeTestFailure, codeTestSuccess } from "../../lib/features/code-tester/codeTesterSlice";
+import { cancelCodeTest, codeTest, codeTestFailure, codeTestSuccess } from "../../lib/features/code-tester/codeTesterSlice";
 import TextArea, { TextAreaRef } from "antd/es/input/TextArea";
-import { useSubscription } from "observable-hooks";
+import { useObservable, useSubscription } from "observable-hooks";
 import storeAction$ from "../../lib/state/storeAction$";
 import { ofType } from "redux-observable";
 import { PayloadAction } from "@reduxjs/toolkit";
+import { delay, of, switchMap, takeUntil } from "rxjs";
 
 const { Header, Content } = Layout;
 
@@ -22,28 +23,55 @@ function EditorPage() {
     const [editorTheme, setEditorTheme] = useState<keyof CodeEditorThemes>("Tokyo Night");
     const inputRef = useRef<TextAreaRef>(null);
     const editorRef = useRef<CodeEditorHandle>(null);
-    const isTesting = useSelector((state: CodeTesterState) => state.codeTester.isTesting);
-    const response = useSelector((state: CodeTesterState) => state.codeTester.codeTestResponse);
-    const executionError = useSelector((state: CodeTesterState) => state.codeTester.executionError);
+    const { isTesting, codeTestResponse, executionError } = useSelector((state: CodeTesterState) => state.codeTester);
     const [messageApi, contextHolder] = message.useMessage();
+
     const { token: { colorBgContainer, colorError } } = theme.useToken();
+
+    const [isCancelButtonActive, setIsCancelButtonActive] = useState(false);
 
     const handleCodeTestFailure = (action: PayloadAction<string>) => {
         messageApi.error(action.payload)
+        setIsCancelButtonActive(false);
     }
 
     const handleCodeTestSuccess = () => {
         messageApi.success("Runned successfully.")
+        setIsCancelButtonActive(false);
     }
 
-    useSubscription(storeAction$.pipe(ofType(codeTestSuccess.type)), handleCodeTestSuccess)
-    useSubscription(storeAction$.pipe(ofType(codeTestFailure.type)), handleCodeTestFailure)
+    const handleLongTest = () => {
+        setIsCancelButtonActive(true);
+    }
+
+    const handleTestCancel = () => {
+        setIsCancelButtonActive(false);
+        dispatch(cancelCodeTest());
+    }
+
+    const longCodeTest$ = useObservable(() => storeAction$.pipe(
+        switchMap(action =>
+            of(action).pipe(
+                ofType(codeTest.type),
+                delay(3000),
+                takeUntil(storeAction$.pipe(ofType(codeTestSuccess.type)))
+            )
+        )
+    ));
+
+    const codeTestSussess$ = useObservable(() => storeAction$.pipe(ofType(codeTestSuccess.type)));
+    const codeTestFailure$ = useObservable(() => storeAction$.pipe(ofType(codeTestFailure.type)));
+
+    useSubscription(longCodeTest$, handleLongTest)
+    useSubscription(codeTestSussess$, handleCodeTestSuccess)
+    useSubscription(codeTestFailure$, handleCodeTestFailure)
 
     const handleRun = () => {
         if (editorRef.current) {
+            const sourceCode = editorRef.current.getCode();
             dispatch(codeTest({
                 language,
-                sourceCode: editorRef.current.getCode(),
+                sourceCode,
                 input: inputRef?.current?.resizableTextArea?.textArea.value
             }));
         }
@@ -55,6 +83,9 @@ function EditorPage() {
             <Flex style={{ width: "100%" }} justify="center" align="center">
                 <Button onClick={handleRun} loading={isTesting} style={{ margin: "12px" }} icon={<CaretRightOutlined />}>
                     Run
+                </Button>
+                <Button disabled={!isCancelButtonActive} onClick={handleTestCancel} style={{ margin: "12px" }} icon={<CloseCircleOutlined />}>
+                    Cancel
                 </Button>
             </Flex>
         </Header>
@@ -90,13 +121,13 @@ function EditorPage() {
                 <Splitter.Panel collapsible>
                     <Flex gap={5} vertical style={{ height: "100%" }}>
                         <Flex gap={12}>
-                            <Statistic prefix={<ClockCircleOutlined />} value={response?.executionTimeMilliseconds} suffix="ms" />
-                            <Statistic precision={2} prefix={<DatabaseOutlined />} value={(response?.memoryUsedBytes ?? 0) / 1000000} suffix="mb" />
+                            <Statistic prefix={<ClockCircleOutlined />} value={codeTestResponse?.executionTimeMilliseconds} suffix="ms" />
+                            <Statistic precision={2} prefix={<DatabaseOutlined />} value={(codeTestResponse?.memoryUsedBytes ?? 0) / 1000000} suffix="mb" />
                         </Flex>
                         <Console displayError={!!executionError}
                             colorError={colorError}
                             style={{ flexGrow: 1 }}
-                            content={executionError ?? response?.output ?? ""} />
+                            content={executionError ?? codeTestResponse?.output} />
                     </Flex>
                 </Splitter.Panel>
             </Splitter>

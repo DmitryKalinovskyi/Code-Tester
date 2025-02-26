@@ -1,6 +1,6 @@
 export default interface CodeTestResponse {
     output: string;
-    error: string;
-    executionTimeMilliseconds: number;
-    memoryUsedBytes: number;
+    error?: string;
+    executionTimeMilliseconds?: number;
+    memoryUsedBytes?: number;
 }

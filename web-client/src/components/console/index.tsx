@@ -2,7 +2,7 @@ import TextArea from "antd/es/input/TextArea";
 import { CSSProperties } from "react";
 
 interface ConsoleProps {
-    content: string,
+    content?: string,
     displayError?: boolean,
     colorError?: string,
     style?: CSSProperties
