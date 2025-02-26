@@ -1,4 +1,4 @@
-import { Button, Flex, Layout, message, Select, Splitter, Statistic, theme } from "antd";
+import { Button, Flex, Layout, message, Select, Splitter, theme, Typography } from "antd";
 import CodeEditor, { CodeEditorHandle, CodeEditorLanguages, CodeEditorThemes } from "../../components/code-editor";
 import Console from "../../components/console";
 import { useRef, useState } from "react";
@@ -14,6 +14,8 @@ import storeAction$ from "../../lib/state/storeAction$";
 import { ofType } from "redux-observable";
 import { PayloadAction } from "@reduxjs/toolkit";
 import { delay, of, switchMap, takeUntil } from "rxjs";
+import prettyMilliseconds from "pretty-ms";
+import bytes from "bytes";
 
 const { Header, Content } = Layout;
 
@@ -121,8 +123,22 @@ function EditorPage() {
                 <Splitter.Panel collapsible>
                     <Flex gap={5} vertical style={{ height: "100%" }}>
                         <Flex gap={12}>
-                            <Statistic prefix={<ClockCircleOutlined />} value={codeTestResponse?.executionTimeMilliseconds} suffix="ms" />
-                            <Statistic precision={2} prefix={<DatabaseOutlined />} value={(codeTestResponse?.memoryUsedBytes ?? 0) / 1000000} suffix="mb" />
+                            {codeTestResponse?.executionTimeMilliseconds &&
+                                <Flex align="center" gap={4}>
+                                    <ClockCircleOutlined />
+                                    <Typography>
+                                        {prettyMilliseconds(codeTestResponse?.executionTimeMilliseconds)}
+                                    </Typography>
+                                </Flex>
+                            }
+                            {codeTestResponse?.memoryUsedBytes &&
+                                <Flex align="center" gap={4}>
+                                    <DatabaseOutlined />
+                                    <Typography>
+                                        {bytes(codeTestResponse?.memoryUsedBytes)}
+                                    </Typography>
+                                </Flex>
+                            }
                         </Flex>
                         <Console displayError={!!executionError}
                             colorError={colorError}
