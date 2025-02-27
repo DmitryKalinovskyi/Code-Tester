@@ -1,55 +1,47 @@
-import { Button, Flex, Layout, message, Select, Splitter, theme, Typography } from "antd";
-import CodeEditor, { CodeEditorHandle, CodeEditorLanguages, CodeEditorThemes } from "../../components/code-editor";
+import { Button, Flex, FloatButton, Layout, message, Select, Splitter, theme, Typography } from "antd";
+import CodeEditor, { CodeEditorHandle } from "../../components/code-editor";
 import Console from "../../components/console";
 import { useRef, useState } from "react";
-import supportedLanguages from "../../components/code-editor/supportedLanguages";
-import supportedThemes from "../../components/code-editor/supportedThemes";
-import { CaretRightOutlined, ClockCircleOutlined, CloseCircleOutlined, DatabaseOutlined } from "@ant-design/icons";
+import supportedLanguages from "./supportedLanguages";
+import supportedThemes from "./supportedThemes";
+import { CaretRightOutlined, ClockCircleOutlined, CloseCircleOutlined, DatabaseOutlined, QuestionOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { CodeTesterState } from "../../lib/state/rootReducer";
 import { cancelCodeTest, codeTest, codeTestFailure, codeTestSuccess } from "../../lib/features/code-tester/codeTesterSlice";
 import TextArea, { TextAreaRef } from "antd/es/input/TextArea";
-import { useObservable, useSubscription } from "observable-hooks";
-import storeAction$ from "../../lib/state/storeAction$";
+import { useObservable, useObservableCallback, useSubscription } from "observable-hooks";
 import { ofType } from "redux-observable";
 import { PayloadAction } from "@reduxjs/toolkit";
-import { delay, of, switchMap, takeUntil } from "rxjs";
+import { debounceTime, delay, of, switchMap, takeUntil } from "rxjs";
 import prettyMilliseconds from "pretty-ms";
 import bytes from "bytes";
+import useLocalStorage from "../../lib/hooks/useLocalStorage";
+import storeAction$ from "../../lib/state/storeAction$";
 
 const { Header, Content } = Layout;
 
 function EditorPage() {
     const dispatch = useDispatch();
-    const [language, setLanguage] = useState<keyof CodeEditorLanguages>("Python");
-    const [editorTheme, setEditorTheme] = useState<keyof CodeEditorThemes>("Tokyo Night");
     const inputRef = useRef<TextAreaRef>(null);
     const editorRef = useRef<CodeEditorHandle>(null);
     const { isTesting, codeTestResponse, executionError } = useSelector((state: CodeTesterState) => state.codeTester);
     const [messageApi, contextHolder] = message.useMessage();
+    const [editorTheme, setEditorTheme] = useLocalStorage<keyof typeof supportedThemes>("codeTester.config.theme", "Tokyo Night");
+    const [language, setLanguage] = useLocalStorage<keyof typeof supportedLanguages>("codeTester.config.language","Python");
+    const [savedCode, setSavedCode] = useLocalStorage<string>("codeTester.projects.project1");
 
     const { token: { colorBgContainer, colorError } } = theme.useToken();
 
     const [isCancelButtonActive, setIsCancelButtonActive] = useState(false);
 
-    const handleCodeTestFailure = (action: PayloadAction<string>) => {
-        messageApi.error(action.payload)
-        setIsCancelButtonActive(false);
-    }
-
-    const handleCodeTestSuccess = () => {
-        messageApi.success("Runned successfully.")
-        setIsCancelButtonActive(false);
-    }
-
-    const handleLongTest = () => {
-        setIsCancelButtonActive(true);
-    }
-
     const handleTestCancel = () => {
         setIsCancelButtonActive(false);
         dispatch(cancelCodeTest());
     }
+
+    const [onCodeChange, unactive$] = useObservableCallback<string>(codeChange$ => codeChange$.pipe(
+        debounceTime(3000)
+    ));
 
     const longCodeTest$ = useObservable(() => storeAction$.pipe(
         switchMap(action =>
@@ -60,13 +52,27 @@ function EditorPage() {
             )
         )
     ));
-
     const codeTestSussess$ = useObservable(() => storeAction$.pipe(ofType(codeTestSuccess.type)));
     const codeTestFailure$ = useObservable(() => storeAction$.pipe(ofType(codeTestFailure.type)));
 
-    useSubscription(longCodeTest$, handleLongTest)
-    useSubscription(codeTestSussess$, handleCodeTestSuccess)
-    useSubscription(codeTestFailure$, handleCodeTestFailure)
+    useSubscription(longCodeTest$, () => {
+        setIsCancelButtonActive(true);
+    });
+
+    useSubscription(codeTestSussess$, () => {
+        messageApi.success("Runned successfully.")
+        setIsCancelButtonActive(false);
+    })
+
+    useSubscription(codeTestFailure$, (action: PayloadAction<string>) => {
+        messageApi.error(action.payload)
+        setIsCancelButtonActive(false);
+    })
+
+    useSubscription(unactive$, (code: string) => {
+        setSavedCode(code);
+        console.log("Saved")
+    });
 
     const handleRun = () => {
         if (editorRef.current) {
@@ -82,16 +88,18 @@ function EditorPage() {
     return <Layout style={{ height: "100%" }}>
         {contextHolder}
         <Header style={{ background: colorBgContainer }} >
-            <Flex style={{ width: "100%" }} justify="center" align="center">
-                <Button onClick={handleRun} loading={isTesting} style={{ margin: "12px" }} icon={<CaretRightOutlined />}>
+            <Flex style={{ height: "100%" }} justify="center" align="center">
+                <Button onClick={handleRun} loading={isTesting} icon={<CaretRightOutlined />} style={{ marginRight: 12 }} type="primary">
                     Run
                 </Button>
-                <Button disabled={!isCancelButtonActive} onClick={handleTestCancel} style={{ margin: "12px" }} icon={<CloseCircleOutlined />}>
+                <Button disabled={!isCancelButtonActive} onClick={handleTestCancel} icon={<CloseCircleOutlined />}>
                     Cancel
                 </Button>
             </Flex>
         </Header>
         <Content>
+            <FloatButton icon={<QuestionOutlined />} shape="circle" type="primary" />
+
             <Splitter style={{ flexGrow: 1, padding: "12px", gap: "12px" }}>
                 <Splitter.Panel defaultSize="50%">
                     <Splitter layout="vertical" style={{ gap: "12px" }}>
@@ -109,13 +117,25 @@ function EditorPage() {
                                         </Select.Option>)}
                                     </Select>
                                 </Flex>
-                                <CodeEditor style={{ borderRadius: "10px", overflow: "hidden", flexGrow: 1 }}
-                                    ref={editorRef} language={language} theme={editorTheme} />
+                                <CodeEditor
+                                    style={{ borderRadius: "10px", overflow: "hidden", flexGrow: 1 }}
+                                    supportedLanguages={{
+                                        ...supportedLanguages
+                                    }}
+                                    supportedThemes={{
+                                        ...supportedThemes
+                                    }}
+                                    ref={editorRef}
+                                    language={language}
+                                    theme={editorTheme}
+                                    onChange={onCodeChange}
+                                    initialDoc={savedCode}
+                                />
                             </Flex>
                         </Splitter.Panel>
                         <Splitter.Panel collapsible>
                             <TextArea style={{ height: "100%", resize: "none" }}
-                                placeholder="Enter input..."
+                                placeholder={`Enter "Hello world"...`}
                                 ref={inputRef} />
                         </Splitter.Panel>
                     </Splitter>
