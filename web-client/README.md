@@ -1,50 +1,86 @@
-# React + TypeScript + Vite
+# Web Client - Code Tester
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is a Vite-based web application for testing code in various programming languages, including C++, Java, and Python. It features a rich text editor with syntax highlighting and integrates with Redux and RxJS for state management and reactive programming.
 
-Currently, two official plugins are available:
+## Features
+- Code editing with CodeMirror
+- Syntax highlighting for C++, Java, and Python
+- Ant Design UI components
+- State management with Redux Toolkit
+- Reactive programming with RxJS and Redux-Observable
+- Storybook for UI component development
+- Unit testing with Vitest
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Installation
 
-## Expanding the ESLint configuration
+Ensure you have [Node.js](https://nodejs.org/) installed, then run:
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+```sh
+npm install
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+## Development
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+To start the development server:
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+```sh
+npm run dev
 ```
+
+## Build
+
+To build the application:
+
+```sh
+npm run build
+```
+
+## Linting
+
+To run ESLint:
+
+```sh
+npm run lint
+```
+
+## Storybook
+
+To run Storybook for UI development:
+
+```sh
+npm run storybook
+```
+
+To build Storybook:
+
+```sh
+npm run build-storybook
+```
+
+## Testing
+
+To run tests using Vitest:
+
+```sh
+npm run test
+```
+
+## Dependencies
+
+### Main Dependencies
+- `react`, `react-dom` - Core React libraries
+- `vite` - Build tool
+- `@reduxjs/toolkit`, `react-redux` - State management
+- `rxjs`, `redux-observable` - Reactive programming
+- `codemirror`, `@codemirror/lang-*` - Code editor
+- `antd`, `@ant-design/icons` - UI components
+
+### Dev Dependencies
+- `eslint`, `eslint-plugin-*` - Linting
+- `storybook`, `@storybook/*` - UI development
+- `vitest`, `@vitest/*` - Testing
+
+## License
+This project is licensed under the MIT License.
+
+
