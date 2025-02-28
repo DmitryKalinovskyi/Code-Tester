@@ -2,8 +2,8 @@ import { Button, Flex, FloatButton, Layout, message, Select, Splitter, theme, Ty
 import CodeEditor, { CodeEditorHandle } from "../../components/code-editor";
 import Console from "../../components/console";
 import { useRef, useState } from "react";
-import supportedLanguages from "./supportedLanguages";
-import supportedThemes from "./supportedThemes";
+import supportedLanguages from "../../components/code-editor/supportedLanguages";
+import supportedThemes from "../../components/code-editor/supportedThemes";
 import { CaretRightOutlined, ClockCircleOutlined, CloseCircleOutlined, DatabaseOutlined, QuestionOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { CodeTesterState } from "../../lib/state/rootReducer";
@@ -101,70 +101,65 @@ function EditorPage() {
             <FloatButton icon={<QuestionOutlined />} shape="circle" type="primary" />
 
             <Splitter style={{ flexGrow: 1, padding: "12px", gap: "12px" }}>
-                <Splitter.Panel defaultSize="50%">
+                <Splitter.Panel defaultSize="70%" collapsible>
+                    <Flex vertical gap={12} style={{ height: "100%" }}>
+                        <Flex gap={12}>
+                            <Select value={language} onChange={(v) => setLanguage(v)} style={{ width: "100px" }}>
+                                {Object.keys(supportedLanguages).map(k => <Select.Option key={k}>
+                                    {k}
+                                </Select.Option>)}
+                            </Select>
+                            <Select value={editorTheme} onChange={(v) => setEditorTheme(v)} style={{ width: "150px" }}>
+                                {Object.keys(supportedThemes).map(k => <Select.Option key={k}>
+                                    {k}
+                                </Select.Option>)}
+                            </Select>
+                        </Flex>
+                        <CodeEditor
+                            style={{ borderRadius: "10px", overflow: "hidden", flexGrow: 1 }}
+                            ref={editorRef}
+                            language={language}
+                            theme={editorTheme}
+                            onCodeChange={onCodeChange}
+                            initialDoc={savedCode}
+                        />
+                    </Flex>
+                </Splitter.Panel>
+                <Splitter.Panel collapsible>
                     <Splitter layout="vertical" style={{ gap: "12px" }}>
                         <Splitter.Panel min="10%" max="90%" collapsible>
-                            <Flex vertical gap={12} style={{ height: "100%" }}>
+                            <Flex gap={5} vertical style={{ height: "100%"}}>
                                 <Flex gap={12}>
-                                    <Select value={language} onChange={(v) => setLanguage(v)} style={{ width: "100px" }}>
-                                        {Object.keys(supportedLanguages).map(k => <Select.Option key={k}>
-                                            {k}
-                                        </Select.Option>)}
-                                    </Select>
-                                    <Select value={editorTheme} onChange={(v) => setEditorTheme(v)} style={{ width: "150px" }}>
-                                        {Object.keys(supportedThemes).map(k => <Select.Option key={k}>
-                                            {k}
-                                        </Select.Option>)}
-                                    </Select>
+                                    {codeTestResponse?.executionTimeMilliseconds &&
+                                        <Flex align="center" gap={4}>
+                                            <ClockCircleOutlined />
+                                            <Typography>
+                                                {prettyMilliseconds(codeTestResponse?.executionTimeMilliseconds)}
+                                            </Typography>
+                                        </Flex>
+                                    }
+                                    {codeTestResponse?.memoryUsedBytes &&
+                                        <Flex align="center" gap={4}>
+                                            <DatabaseOutlined />
+                                            <Typography>
+                                                {bytes(codeTestResponse?.memoryUsedBytes)}
+                                            </Typography>
+                                        </Flex>
+                                    }
                                 </Flex>
-                                <CodeEditor
-                                    style={{ borderRadius: "10px", overflow: "hidden", flexGrow: 1 }}
-                                    supportedLanguages={{
-                                        ...supportedLanguages
-                                    }}
-                                    supportedThemes={{
-                                        ...supportedThemes
-                                    }}
-                                    ref={editorRef}
-                                    language={language}
-                                    theme={editorTheme}
-                                    onChange={onCodeChange}
-                                    initialDoc={savedCode}
-                                />
+                                <Console displayError={!!executionError}
+                                    colorError={colorError}
+                                    style={{ flexGrow: 1 }}
+                                    content={executionError ?? codeTestResponse?.output} />
                             </Flex>
                         </Splitter.Panel>
+
                         <Splitter.Panel collapsible>
                             <TextArea style={{ height: "100%", resize: "none" }}
                                 placeholder={`Enter "Hello world"...`}
                                 ref={inputRef} />
                         </Splitter.Panel>
                     </Splitter>
-                </Splitter.Panel>
-                <Splitter.Panel collapsible>
-                    <Flex gap={5} vertical style={{ height: "100%" }}>
-                        <Flex gap={12}>
-                            {codeTestResponse?.executionTimeMilliseconds &&
-                                <Flex align="center" gap={4}>
-                                    <ClockCircleOutlined />
-                                    <Typography>
-                                        {prettyMilliseconds(codeTestResponse?.executionTimeMilliseconds)}
-                                    </Typography>
-                                </Flex>
-                            }
-                            {codeTestResponse?.memoryUsedBytes &&
-                                <Flex align="center" gap={4}>
-                                    <DatabaseOutlined />
-                                    <Typography>
-                                        {bytes(codeTestResponse?.memoryUsedBytes)}
-                                    </Typography>
-                                </Flex>
-                            }
-                        </Flex>
-                        <Console displayError={!!executionError}
-                            colorError={colorError}
-                            style={{ flexGrow: 1 }}
-                            content={executionError ?? codeTestResponse?.output} />
-                    </Flex>
                 </Splitter.Panel>
             </Splitter>
         </Content>
