@@ -4,7 +4,7 @@ import Console from "../../components/console";
 import { useRef, useState } from "react";
 import supportedLanguages from "../../components/code-editor/supportedLanguages";
 import supportedThemes from "../../components/code-editor/supportedThemes";
-import { CaretRightOutlined, ClockCircleOutlined, CloseCircleOutlined, DatabaseOutlined, QuestionOutlined } from "@ant-design/icons";
+import { CaretRightOutlined, ClockCircleOutlined, CloseCircleOutlined, DatabaseOutlined, QuestionOutlined, SettingOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { CodeTesterState } from "../../lib/state/rootReducer";
 import { cancelCodeTest, codeTest, codeTestFailure, codeTestSuccess } from "../../lib/features/code-tester/codeTesterSlice";
@@ -15,8 +15,12 @@ import { PayloadAction } from "@reduxjs/toolkit";
 import { debounceTime, delay, of, switchMap, takeUntil } from "rxjs";
 import prettyMilliseconds from "pretty-ms";
 import bytes from "bytes";
-import useLocalStorage from "../../lib/hooks/useLocalStorage";
+import useLocalStorage from "../../lib/hooks/cookies/useLocalStorage";
 import storeAction$ from "../../lib/state/storeAction$";
+import CookiePopup from "../../components/cookie-popup";
+import { initialCode } from "../../lib/config/initialCode";
+import { setSettingsModalVisiblity } from "../../lib/features/settings/settingsSlice";
+import SettingsModal from "../../components/settings-modal";
 
 const { Header, Content } = Layout;
 
@@ -28,7 +32,7 @@ function EditorPage() {
     const [messageApi, contextHolder] = message.useMessage();
     const [editorTheme, setEditorTheme] = useLocalStorage<keyof typeof supportedThemes>("codeTester.config.theme", "Tokyo Night");
     const [language, setLanguage] = useLocalStorage<keyof typeof supportedLanguages>("codeTester.config.language", "Python");
-    const [savedCode, setSavedCode] = useLocalStorage<string>("codeTester.projects.project1");
+    const [savedCode, setSavedCode] = useLocalStorage<string>("codeTester.projects.project1", initialCode);
 
     const { token: { colorBgContainer, colorError } } = theme.useToken();
 
@@ -87,6 +91,8 @@ function EditorPage() {
 
     return <Layout style={{ height: "100%" }}>
         {contextHolder}
+        <CookiePopup />
+        <SettingsModal />
         <Header style={{ background: colorBgContainer }} >
             <Flex style={{ height: "100%" }} justify="center" align="center">
                 <Button onClick={handleRun} loading={isTesting} icon={<CaretRightOutlined />} style={{ marginRight: 12 }} type="primary">
@@ -98,7 +104,7 @@ function EditorPage() {
             </Flex>
         </Header>
         <Content>
-            <FloatButton icon={<QuestionOutlined />} shape="circle" type="primary" />
+            <FloatButton icon={<SettingOutlined />} shape="circle" onClick={() => dispatch(setSettingsModalVisiblity(true))} />
 
             <Splitter style={{ flexGrow: 1, padding: "12px", gap: "12px" }}>
                 <Splitter.Panel defaultSize="70%" collapsible>
@@ -128,7 +134,7 @@ function EditorPage() {
                 <Splitter.Panel collapsible>
                     <Splitter layout="vertical" style={{ gap: "12px" }}>
                         <Splitter.Panel min="10%" max="90%" collapsible>
-                            <Flex gap={5} vertical style={{ height: "100%"}}>
+                            <Flex gap={5} vertical style={{ height: "100%" }}>
                                 <Flex gap={12}>
                                     {codeTestResponse?.executionTimeMilliseconds &&
                                         <Flex align="center" gap={4}>

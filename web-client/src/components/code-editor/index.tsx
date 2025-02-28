@@ -1,11 +1,11 @@
 import { HTMLAttributes, Ref, useEffect, useImperativeHandle, useRef } from "react";
 import { EditorView, keymap } from "@codemirror/view"
 import { basicSetup } from "codemirror"
-import {indentWithTab} from "@codemirror/commands"
+import { indentWithTab as indentWithTabCommand } from "@codemirror/commands"
 import supportedLanguages from "./supportedLanguages";
 import supportedThemes from "./supportedThemes";
 
-export interface CodeEditorProps extends HTMLAttributes<HTMLDivElement>{
+export interface CodeEditorProps extends HTMLAttributes<HTMLDivElement> {
     language: keyof typeof supportedLanguages;
     theme: keyof typeof supportedThemes;
     initialDoc?: string;
@@ -19,12 +19,12 @@ export type CodeEditorHandle = {
     setCode: (code: string) => void;
 }
 
-function CodeEditor(props: CodeEditorProps) {
+function CodeEditor({ language, theme, initialDoc, ref, indentWithTab, onCodeChange, ...divProps }: CodeEditorProps) {
     const editorRef = useRef<HTMLDivElement>(null);
     const editorViewRef = useRef<EditorView>(null);
-    const codeRef = useRef<string>(props.initialDoc ?? "");
+    const codeRef = useRef<string>(initialDoc ?? "");
 
-    useImperativeHandle(props.ref, () => {
+    useImperativeHandle(ref, () => {
         return {
             getCode: () => editorViewRef.current?.state.doc.toString() ?? "",
             setCode: (code: string) => {
@@ -47,13 +47,13 @@ function CodeEditor(props: CodeEditorProps) {
 
         const extensions = [
             basicSetup,
-            supportedThemes[props.theme],
-            supportedLanguages[props.language](),
+            supportedThemes[theme],
+            supportedLanguages[language](),
             myTheme
         ]
-        
-        if (props.indentWithTab)
-            extensions.push(keymap.of([indentWithTab]));
+
+        if (indentWithTab)
+            extensions.push(keymap.of([indentWithTabCommand]));
 
         const view = new EditorView({
             doc: codeRef.current,
@@ -62,7 +62,7 @@ function CodeEditor(props: CodeEditorProps) {
             dispatch: (tr) => {
                 if (tr.docChanged) {
                     const value = tr.newDoc.toString();
-                    props.onCodeChange && props.onCodeChange(value); // Notify parent component of content change
+                    onCodeChange && onCodeChange(value); // Notify parent component of content change
                 }
                 view.update([tr])
             },
@@ -75,9 +75,9 @@ function CodeEditor(props: CodeEditorProps) {
             view.destroy();
         }
 
-    }, [props.language, props.theme, props.indentWithTab])
+    }, [language, theme, indentWithTab])
 
-    return <div {...props} ref={editorRef} />
+    return <div {...divProps} ref={editorRef} />
 }
 
 export default CodeEditor;
