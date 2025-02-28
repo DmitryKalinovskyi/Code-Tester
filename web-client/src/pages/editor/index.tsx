@@ -4,7 +4,7 @@ import Console from "../../components/console";
 import { useRef, useState } from "react";
 import supportedLanguages from "../../components/code-editor/supportedLanguages";
 import supportedThemes from "../../components/code-editor/supportedThemes";
-import { CaretRightOutlined, ClockCircleOutlined, CloseCircleOutlined, DatabaseOutlined, QuestionOutlined, SettingOutlined } from "@ant-design/icons";
+import { CaretRightOutlined, ClockCircleOutlined, CloseCircleOutlined, DatabaseOutlined, SettingOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { CodeTesterState } from "../../lib/state/rootReducer";
 import { cancelCodeTest, codeTest, codeTestFailure, codeTestSuccess } from "../../lib/features/code-tester/codeTesterSlice";
