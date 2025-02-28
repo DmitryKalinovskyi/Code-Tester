@@ -17,7 +17,7 @@ type Story = StoryObj<typeof meta>;
 export const Success: Story = {
   args: {
     content: "Hello world!",
-    style: {
+    textAreaStyle: {
       "height": "200px",
       "fontSize": "0.75rem"
     }
@@ -30,7 +30,7 @@ export const CompilationError: Story = {
     displayError: true,
     colorError: "#ff0000",
 
-    style: {
+    textAreaStyle: {
       "height": "200px",
       "fontSize": "0.75rem"
     }
