@@ -92,7 +92,7 @@ function EditorPage() {
     return <Layout style={{ height: "100%" }}>
         {contextHolder}
         <CookiePopup />
-        <SettingsModal/>
+        <SettingsModal />
         <Header style={{ background: colorBgContainer }} >
             <Flex style={{ height: "100%" }} justify="center" align="center">
                 <Button onClick={handleRun} loading={isTesting} icon={<CaretRightOutlined />} style={{ marginRight: 12 }} type="primary">
@@ -104,10 +104,7 @@ function EditorPage() {
             </Flex>
         </Header>
         <Content>
-            <FloatButton.Group>
-                <FloatButton icon={<QuestionOutlined />} shape="circle" />
-                <FloatButton icon={<SettingOutlined />} shape="circle" type="primary" onClick={() => dispatch(setSettingsModalVisiblity(true))}/>
-            </FloatButton.Group>
+            <FloatButton icon={<SettingOutlined />} shape="circle" onClick={() => dispatch(setSettingsModalVisiblity(true))} />
 
             <Splitter style={{ flexGrow: 1, padding: "12px", gap: "12px" }}>
                 <Splitter.Panel defaultSize="70%" collapsible>
