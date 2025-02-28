@@ -1,20 +1,23 @@
 import ConfigProvider from 'antd/es/config-provider';
 import './App.css'
-import Console from './components/console';
-import CodeEditor from './components/code-editor';
 import { Provider as ReduxProvider } from 'react-redux';
-import { store } from './state/store';
+import { store } from './lib/state/store';
+import EditorPage from './pages/editor';
+import { theme } from 'antd';
+import '@ant-design/v5-patch-for-react-19';
 
 function App() {
     return <ConfigProvider theme={{
+        algorithm: theme.darkAlgorithm,
         token: {
             colorPrimary: '#6200ff',
+            
+            // colorBgContainer: '#f6ffed',
             borderRadius: 10
         }
     }}>
         <ReduxProvider store={store}>
-            <CodeEditor />
-            <Console content="Demo" />
+            <EditorPage/>
         </ReduxProvider>
     </ConfigProvider>;
 }

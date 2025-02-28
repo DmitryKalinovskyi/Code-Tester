@@ -1,5 +1,5 @@
-﻿using Code_Tester.Api.DTOs;
-using Code_Tester.Api.Services;
+﻿using Code_Tester.Api.Services.CodeTester;
+using Code_Tester.Api.Services.CodeTester.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Code_Tester.Api.Controllers
@@ -10,8 +10,8 @@ namespace Code_Tester.Api.Controllers
     {
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(CodeTestResponse), StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<CodeTestResponse>> TestCode(CodeTestRequest request)
+        [ProducesResponseType(typeof(CodeTestResult), StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<CodeTestResult>> TestCode(CodeTestOptions request)
         {
             var result = await codeTester.TestAsync(request);
 
