@@ -76,8 +76,16 @@ const config: Config = {
           title: 'Docs',
           items: [
             {
-              label: 'Tutorial',
+              label: 'Intro',
               to: '/docs/intro',
+            },
+            {
+              label: 'ASP.NET Core API',
+              to: '/docs/asp-core-api/code-tester',
+            },
+            {
+              label: 'Web Client',
+              to: '/docs/web-client/code-editor',
             },
           ],
         },
@@ -108,7 +116,7 @@ const config: Config = {
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`,
+      copyright: `Copyright © ${new Date().getFullYear()} Dmytro Kalinovskyi.`,
     },
     prism: {
       theme: prismThemes.github,
