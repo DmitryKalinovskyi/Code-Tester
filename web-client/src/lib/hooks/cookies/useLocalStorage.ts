@@ -1,7 +1,13 @@
 import { useState, useEffect, Dispatch, SetStateAction } from "react";
+import isCookiesAccepted from "../../config/isCookiesAccepted";
 
-const useLocalStorage = <S>(key: string, defaultValue: object | string = ""): [S, Dispatch<SetStateAction<S>>] => {
+const useLocalStorage = <S>(key: string, defaultValue: any = "", neccessary: boolean = false): [S, Dispatch<SetStateAction<S>>] => {
   const [value, setValue] = useState<S>(() => {
+    if(!neccessary && !isCookiesAccepted()){
+      localStorage.removeItem(key);
+      return defaultValue;
+    }
+
     let currentValue;
 
     try {
@@ -16,7 +22,12 @@ const useLocalStorage = <S>(key: string, defaultValue: object | string = ""): [S
   });
 
   useEffect(() => {
-    localStorage.setItem(key, JSON.stringify(value));
+    if(neccessary || isCookiesAccepted()){
+      localStorage.setItem(key, JSON.stringify(value));
+    }
+    else{
+      localStorage.removeItem(key);
+    }
   }, [value, key]);
 
   return [value, setValue];
