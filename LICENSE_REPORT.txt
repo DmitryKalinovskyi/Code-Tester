@@ -1,0 +1,21 @@
+ASP.NET Core API:
+ | Reference                                             | Version | License Type | License                                                                                             |
+ |--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+ | Microsoft.VisualStudio.Azure.Containers.Tools.Targets | 1.21.0  | EULA.md      | https://www.nuget.org/packages/Microsoft.VisualStudio.Azure.Containers.Tools.Targets/1.21.0/License |
+ | Swashbuckle.AspNetCore                                | 7.2.0   | MIT          | https://licenses.nuget.org/MIT                                                                      |
+ | Swashbuckle.AspNetCore.Annotations                    | 7.3.1   | MIT          | https://licenses.nuget.org/MIT                                                                      |
+
+Web-Client:
+├─ MIT: 457       
+├─ ISC: 33        
+├─ Apache-2.0: 18 
+├─ BSD-3-Clause: 9
+├─ BSD-2-Clause: 7
+├─ BlueOak-1.0.0: 3
+├─ (MIT OR CC0-1.0): 3
+├─ Python-2.0: 1
+├─ MIT*: 1
+├─ CC-BY-4.0: 1
+├─ 0BSD: 1
+├─ BSD*: 1
+└─ UNLICENSED: 1
