@@ -27,7 +27,7 @@ function EditorPage() {
     const { isTesting, codeTestResponse, executionError } = useSelector((state: CodeTesterState) => state.codeTester);
     const [messageApi, contextHolder] = message.useMessage();
     const [editorTheme, setEditorTheme] = useLocalStorage<keyof typeof supportedThemes>("codeTester.config.theme", "Tokyo Night");
-    const [language, setLanguage] = useLocalStorage<keyof typeof supportedLanguages>("codeTester.config.language","Python");
+    const [language, setLanguage] = useLocalStorage<keyof typeof supportedLanguages>("codeTester.config.language", "Python");
     const [savedCode, setSavedCode] = useLocalStorage<string>("codeTester.projects.project1");
 
     const { token: { colorBgContainer, colorError } } = theme.useToken();
@@ -52,14 +52,14 @@ function EditorPage() {
             )
         )
     ));
-    const codeTestSussess$ = useObservable(() => storeAction$.pipe(ofType(codeTestSuccess.type)));
+    const codeTestSuccess$ = useObservable(() => storeAction$.pipe(ofType(codeTestSuccess.type)));
     const codeTestFailure$ = useObservable(() => storeAction$.pipe(ofType(codeTestFailure.type)));
 
     useSubscription(longCodeTest$, () => {
         setIsCancelButtonActive(true);
     });
 
-    useSubscription(codeTestSussess$, () => {
+    useSubscription(codeTestSuccess$, () => {
         messageApi.success("Runned successfully.")
         setIsCancelButtonActive(false);
     })
