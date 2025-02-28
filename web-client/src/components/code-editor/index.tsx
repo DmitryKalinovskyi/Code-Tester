@@ -1,28 +1,17 @@
-import { Ref, useEffect, useImperativeHandle, useRef } from "react";
+import { HTMLAttributes, Ref, useEffect, useImperativeHandle, useRef } from "react";
 import { EditorView, keymap } from "@codemirror/view"
 import { basicSetup } from "codemirror"
-import { LanguageSupport } from '@codemirror/language';
-import { Extension } from "@codemirror/state"
 import {indentWithTab} from "@codemirror/commands"
+import supportedLanguages from "./supportedLanguages";
+import supportedThemes from "./supportedThemes";
 
-export type SupportedLanguages = {
-    [language: string]: () => LanguageSupport
-}
-
-export type SupportedThemes = {
-    [theme: string]: Extension
-}
-
-export interface CodeEditorProps<TSupportedLanguages extends SupportedLanguages, TSupportedThemes extends SupportedThemes> {
-    supportedLanguages: TSupportedLanguages;
-    language: keyof TSupportedLanguages;
-    supportedThemes: TSupportedThemes;
-    theme: keyof TSupportedThemes;
+export interface CodeEditorProps extends HTMLAttributes<HTMLDivElement>{
+    language: keyof typeof supportedLanguages;
+    theme: keyof typeof supportedThemes;
     initialDoc?: string;
     ref?: Ref<CodeEditorHandle>;
-    style?: React.CSSProperties;
     indentWithTab?: boolean;
-    onChange?: (code: string) => void;
+    onCodeChange?: (code: string) => void;
 }
 
 export type CodeEditorHandle = {
@@ -30,7 +19,7 @@ export type CodeEditorHandle = {
     setCode: (code: string) => void;
 }
 
-function CodeEditor<TSupportedLanguages extends SupportedLanguages, TSupportedThemes extends SupportedThemes>(props: CodeEditorProps<TSupportedLanguages, TSupportedThemes>) {
+function CodeEditor(props: CodeEditorProps) {
     const editorRef = useRef<HTMLDivElement>(null);
     const editorViewRef = useRef<EditorView>(null);
     const codeRef = useRef<string>(props.initialDoc ?? "");
@@ -58,13 +47,13 @@ function CodeEditor<TSupportedLanguages extends SupportedLanguages, TSupportedTh
 
         const extensions = [
             basicSetup,
-            props.supportedThemes[props.theme],
-            props.supportedLanguages[props.language](),
+            supportedThemes[props.theme],
+            supportedLanguages[props.language](),
             myTheme
         ]
         
         if (props.indentWithTab)
-            keymap.of([indentWithTab]);
+            extensions.push(keymap.of([indentWithTab]));
 
         const view = new EditorView({
             doc: codeRef.current,
@@ -73,7 +62,7 @@ function CodeEditor<TSupportedLanguages extends SupportedLanguages, TSupportedTh
             dispatch: (tr) => {
                 if (tr.docChanged) {
                     const value = tr.newDoc.toString();
-                    props.onChange && props.onChange(value); // Notify parent component of content change
+                    props.onCodeChange && props.onCodeChange(value); // Notify parent component of content change
                 }
                 view.update([tr])
             },
@@ -88,7 +77,7 @@ function CodeEditor<TSupportedLanguages extends SupportedLanguages, TSupportedTh
 
     }, [props.language, props.theme, props.indentWithTab])
 
-    return <div style={props.style} ref={editorRef} />
+    return <div {...props} ref={editorRef} />
 }
 
 export default CodeEditor;

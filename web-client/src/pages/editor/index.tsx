@@ -2,8 +2,8 @@ import { Button, Flex, FloatButton, Layout, message, Select, Splitter, theme, Ty
 import CodeEditor, { CodeEditorHandle } from "../../components/code-editor";
 import Console from "../../components/console";
 import { useRef, useState } from "react";
-import supportedLanguages from "./supportedLanguages";
-import supportedThemes from "./supportedThemes";
+import supportedLanguages from "../../components/code-editor/supportedLanguages";
+import supportedThemes from "../../components/code-editor/supportedThemes";
 import { CaretRightOutlined, ClockCircleOutlined, CloseCircleOutlined, DatabaseOutlined, QuestionOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { CodeTesterState } from "../../lib/state/rootReducer";
@@ -27,7 +27,7 @@ function EditorPage() {
     const { isTesting, codeTestResponse, executionError } = useSelector((state: CodeTesterState) => state.codeTester);
     const [messageApi, contextHolder] = message.useMessage();
     const [editorTheme, setEditorTheme] = useLocalStorage<keyof typeof supportedThemes>("codeTester.config.theme", "Tokyo Night");
-    const [language, setLanguage] = useLocalStorage<keyof typeof supportedLanguages>("codeTester.config.language", "Python");
+    const [language, setLanguage] = useLocalStorage<keyof typeof supportedLanguages>("codeTester.config.language","Python");
     const [savedCode, setSavedCode] = useLocalStorage<string>("codeTester.projects.project1");
 
     const { token: { colorBgContainer, colorError } } = theme.useToken();
@@ -119,16 +119,10 @@ function EditorPage() {
                                 </Flex>
                                 <CodeEditor
                                     style={{ borderRadius: "10px", overflow: "hidden", flexGrow: 1 }}
-                                    supportedLanguages={{
-                                        ...supportedLanguages
-                                    }}
-                                    supportedThemes={{
-                                        ...supportedThemes
-                                    }}
                                     ref={editorRef}
                                     language={language}
                                     theme={editorTheme}
-                                    onChange={onCodeChange}
+                                    onCodeChange={onCodeChange}
                                     initialDoc={savedCode}
                                 />
                             </Flex>
