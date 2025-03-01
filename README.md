@@ -7,6 +7,10 @@ Code Tester Platform consists of three main components:
 
 ---
 
+## Demo
+
+https://github.com/user-attachments/assets/0cb2bbb5-2326-46dd-84de-0d2633362e40
+
 ## Docker Compose
 I've prepared a dev.docker-compose.yml file and a build_dev.sh script to easily build and start the **API**, **Web Client**, and **Docs** services in development.
 
