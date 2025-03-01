@@ -6,7 +6,7 @@ export interface CodeTesterApiConfig extends AjaxConfig {
     debug?: boolean;
 }
 
-const baseUrl = "https://localhost:32768/api"
+const baseUrl = "https://localhost:8080/api"
 
 const createRequestObservable = <T>(config: CodeTesterApiConfig) => {
     const buildUrl = () => {

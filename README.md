@@ -1,10 +1,24 @@
 # Code Tester Platform
 
-Code Tester Platform consists of two main components:
+Code Tester Platform consists of three main components:
 - **Code Tester API**: An ASP.NET Core Web API for executing and testing code remotely.
 - **Code Tester Web Client**: A React-based frontend for interacting with the API.
+- **Docs**: Dinosaurus 😊 docs.
 
 ---
+
+## Docker Compose
+I've prepared a dev.docker-compose.yml file and a build_dev.sh script to easily build and start the **API**, **Web Client**, and **Docs** services in development.
+
+To get started, simply run the following command:
+```sh
+sh build_dev.sh
+```
+This will:
+
+Build the images for the **API**, **Web Client**, and **Docs** services.
+Start all three services (API, Web Client, and Docs) using Docker Compose.
+
 
 ## Code Tester API
 
